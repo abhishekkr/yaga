@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yaga/fx/route_transition.dart';
+import 'package:yaga/common/player.dart';
 import 'package:yaga/tictactoe/game_plot.dart';
+import 'package:yaga/tictactoe/constants.dart';
 
 class PageTicTacToe extends StatefulWidget {
   @override
@@ -9,6 +11,9 @@ class PageTicTacToe extends StatefulWidget {
 
 class _PageTicTacToe extends State<PageTicTacToe> {
   List<GamePlot> gameMap;
+  var playerX = new Player(id: 1, name: "X");
+  var playerO = new Player(id: 2, name: "O");
+  var currentPlayer = -1;
 
   List<GamePlot> initGamePlots() {
     return <GamePlot>[
@@ -24,10 +29,31 @@ class _PageTicTacToe extends State<PageTicTacToe> {
     ]; // gameMap
   }
 
+  void playPlot(GamePlot plot) {
+    setState(() {
+      if (currentPlayer == playerX.id) {
+        plot.text = "X";
+        plot.bg = ColorPlotPlayedX;
+        currentPlayer = playerO.id;
+      } else {
+        plot.text = "O";
+        plot.bg = ColorPlotPlayedO;
+        currentPlayer = playerX.id;
+      }
+      plot.played = true;
+      didYouWin(plot);
+    });
+  }
+
+  void didYouWin(GamePlot plot) {
+   // 
+  }
+
   @override
   void initState() {
     super.initState();
     gameMap = initGamePlots();
+    currentPlayer = playerX.id;
   }
 
   @override
@@ -53,10 +79,12 @@ class _PageTicTacToe extends State<PageTicTacToe> {
                     padding: const EdgeInsets.all(10.0),
                     color: gameMap[i].bg,
                     disabledColor: gameMap[i].bg,
-                    onPressed: null,
+                    onPressed: !gameMap[i].played
+                      ? () => playPlot(gameMap[i])
+                      : null,
                     child: new Text(
                         gameMap[i].text,
-                        style: TextStyle(color: Colors.orange , fontSize: 25.0),
+                        style: TextStyle(color: ColorPlotText, fontSize: 52.0),
                     ),
                 ),
             ),

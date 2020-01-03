@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yaga/tictactoe/constants.dart';
 
 class GamePlot {
   final id;
@@ -9,7 +10,7 @@ class GamePlot {
   GamePlot({
     this.id,
     this.text = "",
-    this.bg = Colors.cyan,
+    this.bg = ColorPlotAvailable,
     this.played = false,
   });
 }
