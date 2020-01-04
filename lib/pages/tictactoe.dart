@@ -14,6 +14,8 @@ class _PageTicTacToe extends State<PageTicTacToe> {
   var playerX = new Player(id: 1, name: "X");
   var playerO = new Player(id: 2, name: "O");
   var currentPlayer = -1;
+  Player winner;
+  bool gameIsOn = true;
 
   List<GamePlot> initGamePlots() {
     return <GamePlot>[
@@ -41,12 +43,66 @@ class _PageTicTacToe extends State<PageTicTacToe> {
         currentPlayer = playerX.id;
       }
       plot.played = true;
-      didYouWin(plot);
+    });
+
+    endGame();
+  }
+
+  void endGame() {
+    var winnerXO = didYouWin();
+    if (winnerXO == "") {
+      return;
+    }
+
+    setState(() {
+      gameIsOn = false;
+      if (winnerXO == "X") {
+        winner = playerX;
+      } else if (winnerXO == "O") {
+        winner = playerO;
+      }
     });
   }
 
-  void didYouWin(GamePlot plot) {
-   // 
+  String didYouWin() {
+    if (gameMap[0].text != "") {
+      if(gameMap[0].text == gameMap[1].text && gameMap[1].text == gameMap[2].text) {
+        return gameMap[0].text;
+      }
+      if(gameMap[0].text == gameMap[3].text && gameMap[3].text == gameMap[6].text) {
+        return gameMap[0].text;
+      }
+    }
+
+    if (gameMap[4].text != "") {
+      if(gameMap[0].text == gameMap[4].text && gameMap[4].text == gameMap[8].text) {
+        return gameMap[0].text;
+      }
+      if(gameMap[1].text == gameMap[4].text && gameMap[4].text == gameMap[7].text) {
+        return gameMap[1].text;
+      }
+      if(gameMap[2].text == gameMap[4].text && gameMap[4].text == gameMap[6].text) {
+        return gameMap[2].text;
+      }
+      if(gameMap[3].text == gameMap[4].text && gameMap[4].text == gameMap[5].text) {
+        return gameMap[3].text;
+      }
+    }
+
+    if (gameMap[8].text != "") {
+      if(gameMap[2].text == gameMap[5].text && gameMap[5].text == gameMap[8].text) {
+        return gameMap[2].text;
+      }
+      if(gameMap[6].text == gameMap[7].text && gameMap[7].text == gameMap[8].text) {
+        return gameMap[6].text;
+      }
+    }
+
+    return "";
+  }
+
+  bool canPlayThisPlot(int plotIndex) {
+    return (!gameMap[plotIndex].played && gameIsOn);
   }
 
   @override
@@ -79,7 +135,7 @@ class _PageTicTacToe extends State<PageTicTacToe> {
                     padding: const EdgeInsets.all(10.0),
                     color: gameMap[i].bg,
                     disabledColor: gameMap[i].bg,
-                    onPressed: !gameMap[i].played
+                    onPressed: canPlayThisPlot(i)
                       ? () => playPlot(gameMap[i])
                       : null,
                     child: new Text(
