@@ -1,5 +1,7 @@
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:yaga/common/player.dart';
+import 'package:yaga/common/custom_dialog.dart';
 import 'package:yaga/tictactoe/game_plot.dart';
 import 'package:yaga/tictactoe/game_data.dart';
 import 'package:yaga/tictactoe/constants.dart';
@@ -7,13 +9,27 @@ import 'package:yaga/tictactoe/constants.dart';
 class GameMap extends StatefulWidget {
   GameData gameData;
 
-  GameMap(this.gameData);
+  GameMap();
 
   @override
   _GameMap createState() => new _GameMap();
 }
 
 class _GameMap extends State<GameMap> {
+  List<GamePlot> initGamePlots() {
+    return <GamePlot>[
+       new GamePlot(id: 1),
+       new GamePlot(id: 2),
+       new GamePlot(id: 3),
+       new GamePlot(id: 4),
+       new GamePlot(id: 5),
+       new GamePlot(id: 6),
+       new GamePlot(id: 7),
+       new GamePlot(id: 8),
+       new GamePlot(id: 9),
+    ]; // gameMap
+  }
+
   void playPlot(GamePlot plot) {
     setState(() {
       if (widget.gameData.currentPlayer == widget.gameData.playerX.id) {
@@ -44,6 +60,28 @@ class _GameMap extends State<GameMap> {
       } else if (winnerXO == "O") {
         widget.gameData.winner = widget.gameData.playerO;
       }
+    });
+
+    showDialog(
+        context: context,
+        builder: (_) => new CustomDialog(
+             widget.gameData.winner.name + " won!",
+            "Press reset to start again.", resetGame)
+    );
+  }
+
+  void resetGame() {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    setState(() {
+      widget.gameData = GameData(
+        initGamePlots(),
+        -1,
+        null,
+        true,
+      );
+      widget.gameData.currentPlayer = widget.gameData.playerX.id;
     });
   }
 
@@ -91,6 +129,12 @@ class _GameMap extends State<GameMap> {
   @override
   void initState() {
     super.initState();
+    widget.gameData = GameData(
+      initGamePlots(),
+      -1,
+      null,
+      true,
+    );
     if (widget.gameData.currentPlayer == -1) {
       widget.gameData.currentPlayer = widget.gameData.playerX.id;
     }
@@ -114,18 +158,23 @@ class _GameMap extends State<GameMap> {
               itemBuilder: (context, i) => new SizedBox(
                   width: 90.0,
                   height: 90.0,
-                  child: new RaisedButton(
-                      padding: const EdgeInsets.all(10.0),
-                      color: widget.gameData.gameMap[i].bg,
-                      disabledColor: widget.gameData.gameMap[i].bg,
-                      onPressed: canPlayThisPlot(i)
-                        ? () => playPlot(widget.gameData.gameMap[i])
-                        : null,
-                      child: new Text(
-                          widget.gameData.gameMap[i].text,
-                          style: TextStyle(color: ColorPlotText, fontSize: 52.0),
-                      ),
-                  ),
+                  child: InkWell(
+                    child: Container(
+                      padding: EdgeInsets.all(3.0),
+                      child: new RaisedButton(
+                          padding: const EdgeInsets.all(10.0),
+                          color: widget.gameData.gameMap[i].bg,
+                          disabledColor: widget.gameData.gameMap[i].bg,
+                          onPressed: canPlayThisPlot(i)
+                            ? () => playPlot(widget.gameData.gameMap[i])
+                            : null,
+                          child: new Text(
+                              widget.gameData.gameMap[i].text,
+                              style: TextStyle(color: ColorPlotText, fontSize: 52.0),
+                          ),
+                      ), // <RaisedButton/>
+                    ),
+                  ), // <InkWell/>
               ),
             ), // <GridView/>
           ), // <Center/>
