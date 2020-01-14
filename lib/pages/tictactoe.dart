@@ -19,7 +19,7 @@ class _PageTicTacToe extends State<PageTicTacToe> {
           padding: new EdgeInsets.symmetric(vertical: 5.0),
           children: <Widget>[
             GameMap(),
-            //SidePanel(gameData),
+            //ScoreBoard(gameData),
           ],
       ),
     ); // <Scaffold/>

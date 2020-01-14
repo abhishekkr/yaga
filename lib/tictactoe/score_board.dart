@@ -3,16 +3,16 @@ import 'package:yaga/common/player.dart';
 import 'package:yaga/tictactoe/constants.dart';
 import 'package:yaga/tictactoe/game_data.dart';
 
-class SidePanel extends StatefulWidget {
+class ScoreBoard extends StatefulWidget {
   GameData gameData;
 
-  SidePanel(this.gameData);
+  ScoreBoard(this.gameData);
 
   @override
-  _SidePanel createState() => new _SidePanel();
+  _ScoreBoard createState() => new _ScoreBoard();
 }
 
-class _SidePanel extends State<SidePanel> {
+class _ScoreBoard extends State<ScoreBoard> {
   @override
   void initState() {
     super.initState();

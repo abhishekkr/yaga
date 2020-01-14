@@ -32,25 +32,44 @@ class _GameMap extends State<GameMap> {
 
   void playPlot(GamePlot plot) {
     setState(() {
-      if (widget.gameData.currentPlayer == widget.gameData.playerX.id) {
-        plot.text = "X";
-        plot.bg = ColorPlotPlayedX;
-        widget.gameData.currentPlayer = widget.gameData.playerO.id;
-      } else {
-        plot.text = "O";
-        plot.bg = ColorPlotPlayedO;
-        widget.gameData.currentPlayer = widget.gameData.playerX.id;
-      }
+      plot.text = playerNameById(widget.gameData.currentPlayer);
+      plot.bg = playerBgById(widget.gameData.currentPlayer);
+      widget.gameData.currentPlayer = nextPlayerId();
       plot.played = true;
     });
 
-    endGame();
+    if (!endGame()) {
+      String playerName = playerNameById(widget.gameData.currentPlayer);
+      final snackBar = SnackBar(
+          content: Text(playerName + "'s turn"),
+          duration: const Duration(microseconds: 300000),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
   }
 
-  void endGame() {
+  String playerNameById(int playerId) {
+    return (playerId == widget.gameData.playerX.id ? "X" : "O");
+  }
+
+  Color playerBgById(int playerId) {
+    return (playerId == widget.gameData.playerX.id ?
+         ColorPlotPlayedX : ColorPlotPlayedO);
+  }
+
+  int nextPlayerId() {
+    return (widget.gameData.currentPlayer == widget.gameData.playerX.id ?
+         widget.gameData.playerO.id : widget.gameData.playerX.id);
+  }
+
+  bool endGame() {
     var winnerXO = didYouWin();
     if (winnerXO == "") {
-      return;
+      if (widget.gameData.gameMap.every((plot) => plot.text != "")) {
+        alertGameTie();
+        return true;
+      }
+      return false;
     }
 
     setState(() {
@@ -62,6 +81,20 @@ class _GameMap extends State<GameMap> {
       }
     });
 
+    alertGameWon();
+    return true;
+  }
+
+  void alertGameTie() {
+    showDialog(
+        context: context,
+        builder: (_) => new CustomDialog(
+            "game has tied!",
+            "Press reset to start again.", resetGame)
+    );
+  }
+
+  void alertGameWon() {
     showDialog(
         context: context,
         builder: (_) => new CustomDialog(
