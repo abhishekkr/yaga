@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yaga/fx/route_transition.dart';
 import 'package:yaga/tictactoe/game_map.dart';
-import 'package:yaga/tictactoe/side_panel.dart';
+import 'package:yaga/tictactoe/score_board.dart';
 
 class PageTicTacToe extends StatefulWidget {
   @override
