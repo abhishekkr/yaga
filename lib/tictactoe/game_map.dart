@@ -1,10 +1,12 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:yaga/common/player.dart';
 import 'package:yaga/common/custom_dialog.dart';
 import 'package:yaga/tictactoe/game_plot.dart';
 import 'package:yaga/tictactoe/game_data.dart';
+import 'package:yaga/tictactoe/game_logic.dart';
 import 'package:yaga/tictactoe/constants.dart';
+import 'package:yaga/tictactoe/score_board.dart';
+import 'package:yaga/tictactoe/bot_ai.dart';
 
 class GameMap extends StatefulWidget {
   GameData gameData;
@@ -12,25 +14,45 @@ class GameMap extends StatefulWidget {
   GameMap();
 
   @override
-  _GameMap createState() => new _GameMap();
+  _GameMap createState() => _GameMap();
 }
 
 class _GameMap extends State<GameMap> {
   List<GamePlot> initGamePlots() {
     return <GamePlot>[
-       new GamePlot(id: 1),
-       new GamePlot(id: 2),
-       new GamePlot(id: 3),
-       new GamePlot(id: 4),
-       new GamePlot(id: 5),
-       new GamePlot(id: 6),
-       new GamePlot(id: 7),
-       new GamePlot(id: 8),
-       new GamePlot(id: 9),
+       GamePlot(id: 1),
+       GamePlot(id: 2),
+       GamePlot(id: 3),
+       GamePlot(id: 4),
+       GamePlot(id: 5),
+       GamePlot(id: 6),
+       GamePlot(id: 7),
+       GamePlot(id: 8),
+       GamePlot(id: 9),
     ]; // gameMap
   }
 
   void playPlot(GamePlot plot) {
+    playPlotById(plot.id - 1);
+  }
+
+  void ifBotThenAutoPlay() {
+    String playerName;
+    if (widget.gameData.currentPlayer == widget.gameData.playerX.id && widget.gameData.playerX.isBot) {
+      playerName = 'X';
+    } else if (widget.gameData.currentPlayer == widget.gameData.playerO.id && widget.gameData.playerO.isBot) {
+      playerName = 'O';
+    } else {
+      return;
+    }
+
+    int plotIdToPlay = BotAI.pickPlotByMinimax(playerName, widget.gameData.gameMap);
+    playPlotById(plotIdToPlay);
+  }
+
+  void playPlotById(int plotId) {
+    GamePlot plot = widget.gameData.gameMap[plotId];
+
     setState(() {
       plot.text = playerNameById(widget.gameData.currentPlayer);
       plot.bg = playerBgById(widget.gameData.currentPlayer);
@@ -38,14 +60,23 @@ class _GameMap extends State<GameMap> {
       plot.played = true;
     });
 
-    if (!endGame()) {
+    if (endGame()) {
+      snackBar('Game Over!');
+      return;
+    } else {
       String playerName = playerNameById(widget.gameData.currentPlayer);
-      final snackBar = SnackBar(
-          content: Text(playerName + "'s turn"),
-          duration: const Duration(microseconds: 300000),
-      );
-      Scaffold.of(context).showSnackBar(snackBar);
+      snackBar((playerName + "'s turn"));
     }
+
+    ifBotThenAutoPlay();
+  }
+
+  void snackBar(String msg) {
+    final snack = SnackBar(
+        content: Text(msg),
+        duration: const Duration(microseconds: 300000),
+    );
+    Scaffold.of(context).showSnackBar(snack);
   }
 
   String playerNameById(int playerId) {
@@ -63,7 +94,7 @@ class _GameMap extends State<GameMap> {
   }
 
   bool endGame() {
-    var winnerXO = didYouWin();
+    var winnerXO = GameLogic.didYouWin(widget.gameData.gameMap);
     if (winnerXO == "") {
       if (widget.gameData.gameMap.every((plot) => plot.text != "")) {
         alertGameTie();
@@ -88,7 +119,7 @@ class _GameMap extends State<GameMap> {
   void alertGameTie() {
     showDialog(
         context: context,
-        builder: (_) => new CustomDialog(
+        builder: (_) => CustomDialog(
             "game has tied!",
             "Press reset to start again.", resetGame)
     );
@@ -97,7 +128,7 @@ class _GameMap extends State<GameMap> {
   void alertGameWon() {
     showDialog(
         context: context,
-        builder: (_) => new CustomDialog(
+        builder: (_) => CustomDialog(
              widget.gameData.winner.name + " won!",
             "Press reset to start again.", resetGame)
     );
@@ -116,43 +147,7 @@ class _GameMap extends State<GameMap> {
       );
       widget.gameData.currentPlayer = widget.gameData.playerX.id;
     });
-  }
-
-  String didYouWin() {
-    if (widget.gameData.gameMap[0].text != "") {
-      if(widget.gameData.gameMap[0].text == widget.gameData.gameMap[1].text && widget.gameData.gameMap[1].text == widget.gameData.gameMap[2].text) {
-        return widget.gameData.gameMap[0].text;
-      }
-      if(widget.gameData.gameMap[0].text == widget.gameData.gameMap[3].text && widget.gameData.gameMap[3].text == widget.gameData.gameMap[6].text) {
-        return widget.gameData.gameMap[0].text;
-      }
-    }
-
-    if (widget.gameData.gameMap[4].text != "") {
-      if(widget.gameData.gameMap[0].text == widget.gameData.gameMap[4].text && widget.gameData.gameMap[4].text == widget.gameData.gameMap[8].text) {
-        return widget.gameData.gameMap[0].text;
-      }
-      if(widget.gameData.gameMap[1].text == widget.gameData.gameMap[4].text && widget.gameData.gameMap[4].text == widget.gameData.gameMap[7].text) {
-        return widget.gameData.gameMap[1].text;
-      }
-      if(widget.gameData.gameMap[2].text == widget.gameData.gameMap[4].text && widget.gameData.gameMap[4].text == widget.gameData.gameMap[6].text) {
-        return widget.gameData.gameMap[2].text;
-      }
-      if(widget.gameData.gameMap[3].text == widget.gameData.gameMap[4].text && widget.gameData.gameMap[4].text == widget.gameData.gameMap[5].text) {
-        return widget.gameData.gameMap[3].text;
-      }
-    }
-
-    if (widget.gameData.gameMap[8].text != "") {
-      if(widget.gameData.gameMap[2].text == widget.gameData.gameMap[5].text && widget.gameData.gameMap[5].text == widget.gameData.gameMap[8].text) {
-        return widget.gameData.gameMap[2].text;
-      }
-      if(widget.gameData.gameMap[6].text == widget.gameData.gameMap[7].text && widget.gameData.gameMap[7].text == widget.gameData.gameMap[8].text) {
-        return widget.gameData.gameMap[6].text;
-      }
-    }
-
-    return "";
+    ifBotThenAutoPlay();
   }
 
   bool canPlayThisPlot(int plotIndex) {
@@ -171,47 +166,53 @@ class _GameMap extends State<GameMap> {
     if (widget.gameData.currentPlayer == -1) {
       widget.gameData.currentPlayer = widget.gameData.playerX.id;
     }
+    ifBotThenAutoPlay();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-          height: 450.0,
-          width: 450.0,
-          child: Center(
-            child: new GridView.builder(
-              padding: const EdgeInsets.all(5.0),
-              gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.0,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-              ),
-              itemCount: widget.gameData.gameMap.length,
-              itemBuilder: (context, i) => new SizedBox(
-                  width: 90.0,
-                  height: 90.0,
-                  child: InkWell(
-                    child: Container(
-                      padding: EdgeInsets.all(3.0),
-                      child: new RaisedButton(
-                          padding: const EdgeInsets.all(10.0),
-                          color: widget.gameData.gameMap[i].bg,
-                          disabledColor: widget.gameData.gameMap[i].bg,
-                          onPressed: canPlayThisPlot(i)
-                            ? () => playPlot(widget.gameData.gameMap[i])
-                            : null,
-                          child: new Text(
-                              widget.gameData.gameMap[i].text,
-                              style: TextStyle(color: ColorPlotText, fontSize: 52.0),
-                          ),
-                      ), // <RaisedButton/>
-                    ),
-                  ), // <InkWell/>
-              ),
-            ), // <GridView/>
-          ), // <Center/>
-    ); // <Container/>
-
+    return Column(
+                 children: <Widget>[
+                   SizedBox(
+                     height: 5.0,
+                   ),
+                   GridView.builder(
+                     shrinkWrap: true,
+                     padding: const EdgeInsets.all(5.0),
+                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                         crossAxisCount: 3,
+                         childAspectRatio: 1.0,
+                         crossAxisSpacing: 10.0,
+                         mainAxisSpacing: 10.0,
+                     ),
+                     itemCount: widget.gameData.gameMap.length,
+                     itemBuilder: (context, i) => SizedBox(
+                         width: 90.0,
+                         height: 90.0,
+                         child: InkWell(
+                           child: Container(
+                             padding: EdgeInsets.all(3.0),
+                             child: RaisedButton(
+                                 padding: const EdgeInsets.all(10.0),
+                                 color: widget.gameData.gameMap[i].bg,
+                                 disabledColor: widget.gameData.gameMap[i].bg,
+                                 onPressed: canPlayThisPlot(i)
+                                   ? () => playPlot(widget.gameData.gameMap[i])
+                                   : null,
+                                 child: Text(
+                                     widget.gameData.gameMap[i].text,
+                                     style: TextStyle(color: ColorPlotText, fontSize: 52.0),
+                                 ),
+                             ), // <RaisedButton/>
+                           ),
+                         ), // <InkWell/>
+                     ),
+                   ), // <GridView/>
+                   SizedBox(
+                     height: 10.0,
+                   ),
+                  ScoreBoard(widget.gameData),
+                 ],
+          ); // <Column/>
   }
 }

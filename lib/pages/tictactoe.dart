@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:yaga/fx/route_transition.dart';
 import 'package:yaga/tictactoe/game_map.dart';
-import 'package:yaga/tictactoe/score_board.dart';
 
 class PageTicTacToe extends StatefulWidget {
   @override
-  _PageTicTacToe createState() => new _PageTicTacToe();
+  _PageTicTacToe createState() => _PageTicTacToe();
 }
 
 class _PageTicTacToe extends State<PageTicTacToe> {
@@ -15,11 +14,10 @@ class _PageTicTacToe extends State<PageTicTacToe> {
       appBar: AppBar(
           title: Text('Tic Tac Toe'),
       ),
-      body: new ListView(
-          padding: new EdgeInsets.symmetric(vertical: 5.0),
+      body: ListView(
+          padding: EdgeInsets.symmetric(vertical: 5.0),
           children: <Widget>[
             GameMap(),
-            //ScoreBoard(gameData),
           ],
       ),
     ); // <Scaffold/>

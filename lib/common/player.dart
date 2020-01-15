@@ -1,9 +1,11 @@
 class Player {
-  final id;
+  final int id;
   String name;
+  bool isBot;
 
   Player({
     this.id,
     this.name = "",
+    this.isBot = false,
   });
 }

@@ -22,7 +22,7 @@ class PageContent extends StatelessWidget {
                       child: Container(
                         alignment: Alignment.center,
                         child: ClipRRect(
-                          borderRadius: new BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(10.0),
                           child: Image.asset(
                             ImgAppBanner,
                             fit: BoxFit.cover,
